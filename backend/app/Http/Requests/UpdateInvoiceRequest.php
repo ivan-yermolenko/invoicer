@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Requests;
 
 use App\Enums\InvoiceCurrency;
-use App\Models\Invoice;
+use App\Enums\InvoiceStatus;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -28,6 +28,7 @@ final class UpdateInvoiceRequest extends FormRequest
             'net_amount' => ['sometimes', 'required', 'numeric', 'min:0.01'],
             'vat_amount' => ['sometimes', 'required', 'numeric', 'min:0'],
             'currency' => ['sometimes', Rule::enum(InvoiceCurrency::class)],
+            'status' => ['sometimes', Rule::enum(InvoiceStatus::class)],
             'issue_date' => ['sometimes', 'required', 'date'],
             'due_date' => ['sometimes', 'required', 'date', 'after_or_equal:issue_date'],
         ];
