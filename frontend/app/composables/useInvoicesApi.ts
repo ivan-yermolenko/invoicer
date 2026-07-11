@@ -4,10 +4,11 @@ export interface Invoice {
   id: string
   number: string
   supplier_name: string
+  supplier_tax_id: string
   net_amount: number
   vat_amount: number
   gross_amount: number
-  currency: string
+  currency: 'UAH' | 'USD' | 'EUR'
   issue_date: string
   due_date: string
   status: 'pending' | 'approved' | 'rejected'
