@@ -1,52 +1,72 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed } from 'vue';
 
-const route = useRoute()
-const { getInvoice, updateInvoice } = useInvoicesApi()
+const route = useRoute();
+const { getInvoice, updateInvoice } = useInvoicesApi();
 
-const { data: response, pending, error, refresh } = getInvoice(route.params.id as string, { lazy: true })
+const { data: response, pending, error, refresh } = await getInvoice(route.params.id as string);
 
-const invoice = computed(() => response.value?.data)
-const isUpdating = ref(false)
+const invoice = computed(() => response.value?.data);
+const isUpdating = ref(false);
 
 const handleStatusChange = async (newStatus: 'approved' | 'rejected') => {
-  if (!invoice.value) return
-  
-  isUpdating.value = true
+  if (!invoice.value) return;
+
+  isUpdating.value = true;
   try {
     await updateInvoice(invoice.value.id, {
-      status: newStatus 
-    })
-    await refresh()
+      status: newStatus
+    });
+    await refresh();
   } catch (e) {
-    console.error(e)
+    console.error(e);
   } finally {
-    isUpdating.value = false
+    isUpdating.value = false;
   }
-}
+};
+
+const handleUpdate = async (payload: any) => {
+  if (!invoice.value) return;
+
+  isUpdating.value = true;
+  try {
+    await updateInvoice(invoice.value.id, payload);
+    await refresh();
+  } catch (e: any) {
+    if (e.response?.status === 422) {
+      console.error(
+        'Помилка валідації на сервері: ' + Object.values(e.response._data.errors).flat().join(', ')
+      );
+    } else {
+      console.error('Виникла помилка при оновленні інвойсу.', e);
+    }
+  } finally {
+    isUpdating.value = false;
+  }
+};
 </script>
 
 <template>
   <div class="space-y-6 max-w-4xl mx-auto">
     <!-- Header Actions -->
     <div class="flex items-center justify-between">
-      <button 
+      <button
         @click="navigateTo('/invoices')"
         class="text-slate-500 hover:text-slate-900 flex items-center gap-2 transition-colors"
       >
         <IconArrowLeft />
         Назад до списку
       </button>
-      
+
       <div v-if="invoice && invoice.status === 'pending'" class="flex items-center gap-3">
-        <button 
+        <button
           @click="handleStatusChange('rejected')"
           :disabled="isUpdating"
           class="bg-white border border-red-200 text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg font-medium shadow-sm transition-colors duration-200 disabled:opacity-50"
         >
           Відхилити
         </button>
-        <button 
+        <button
           @click="handleStatusChange('approved')"
           :disabled="isUpdating"
           class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium shadow-sm transition-colors duration-200 flex items-center gap-2 disabled:opacity-50"
@@ -63,7 +83,10 @@ const handleStatusChange = async (newStatus: 'approved' | 'rejected') => {
     </div>
 
     <!-- Loading Skeleton -->
-    <div v-else-if="pending" class="bg-white border border-slate-200 rounded-xl p-8 shadow-sm animate-pulse">
+    <div
+      v-else-if="pending"
+      class="bg-white border border-slate-200 rounded-xl p-8 shadow-sm animate-pulse"
+    >
       <div class="flex justify-between items-start mb-8">
         <div>
           <div class="h-8 bg-slate-200 rounded w-48 mb-2"></div>
@@ -80,15 +103,18 @@ const handleStatusChange = async (newStatus: 'approved' | 'rejected') => {
     </div>
 
     <!-- Details Content -->
-    <div v-else-if="invoice" class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden relative" :class="{'opacity-75 pointer-events-none': isUpdating}">
-      
+    <div
+      v-else-if="invoice"
+      class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden relative"
+      :class="{ 'opacity-75 pointer-events-none': isUpdating }"
+    >
       <!-- Top Section -->
       <div class="p-8 border-b border-slate-100 flex justify-between items-start">
         <div>
           <h1 class="text-3xl font-bold text-slate-900 mb-1">{{ invoice.number }}</h1>
-          <p class="text-slate-500">{{ invoice.supplier_name }}</p>
+          <p class="text-slate-500">Редагування інвойсу</p>
         </div>
-        <span 
+        <span
           class="px-3 py-1.5 text-sm font-medium rounded-full border"
           :class="INVOICE_STATUS_CLASSES[invoice.status]"
         >
@@ -96,43 +122,18 @@ const handleStatusChange = async (newStatus: 'approved' | 'rejected') => {
         </span>
       </div>
 
-      <!-- Grid Data -->
-      <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-        <!-- Dates -->
-        <div class="space-y-4">
-          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Дати</h3>
-          <div class="bg-slate-50 rounded-lg p-4 space-y-3">
-            <div class="flex justify-between">
-              <span class="text-sm text-slate-500">Дата виставлення</span>
-              <span class="text-sm font-medium text-slate-900">{{ formatDate(invoice.issue_date) }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-sm text-slate-500">Оплатити до</span>
-              <span class="text-sm font-medium text-slate-900">{{ formatDate(invoice.due_date) }}</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Financials -->
-        <div class="space-y-4">
-          <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Фінанси</h3>
-          <div class="bg-blue-50/50 rounded-lg p-4 space-y-3">
-            <div class="flex justify-between">
-              <span class="text-sm text-slate-500">Сума без ПДВ (Net)</span>
-              <span class="text-sm font-medium text-slate-900">{{ formatCurrency(invoice.net_amount, invoice.currency) }}</span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-sm text-slate-500">ПДВ (VAT)</span>
-              <span class="text-sm font-medium text-slate-900">{{ formatCurrency(invoice.vat_amount, invoice.currency) }}</span>
-            </div>
-            <div class="pt-3 mt-3 border-t border-blue-100 flex justify-between items-center">
-              <span class="font-medium text-slate-700">Загальна сума</span>
-              <span class="text-xl font-bold text-blue-700">{{ formatCurrency(invoice.gross_amount, invoice.currency) }}</span>
-            </div>
-          </div>
-        </div>
+      <!-- Form Section -->
+      <div class="p-8">
+        <InvoiceForm
+          :key="invoice.updated_at"
+          :initial-data="invoice"
+          :is-readonly="invoice.status !== 'pending'"
+          :is-submitting="isUpdating"
+          @submit="handleUpdate"
+          @cancel="navigateTo('/invoices')"
+        />
       </div>
-      
+
       <LoadingOverlay v-if="isUpdating" />
     </div>
   </div>

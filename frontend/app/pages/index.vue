@@ -2,10 +2,10 @@
 definePageMeta({
   middleware: [
     function () {
-      return navigateTo('/invoices')
+      return navigateTo('/invoices');
     }
   ]
-})
+});
 </script>
 
 <template>
