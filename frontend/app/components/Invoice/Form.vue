@@ -19,8 +19,11 @@ const emit = defineEmits<{
 const invoiceSchema = z
   .object({
     number: z.string().min(1, 'Поле "Номер інвойсу" є обов\'язковим'),
-    supplier_name: z.string().min(1, 'Поле "Назва компанії" є обов\'язковим'),
-    supplier_tax_id: z.string().min(1, 'Поле "ЄДРПОУ / ІПН" є обов\'язковим'),
+    supplier_name: z.string().min(1, 'Поле "Постачальник" є обов\'язковим'),
+    supplier_tax_id: z.string()
+      .min(8, 'Мінімум 8 цифр')
+      .max(12, 'Максимум 12 цифр')
+      .regex(/^\d+$/, 'Має містити лише цифри'),
     net_amount: z
       .number({
         required_error: "Сума без ПДВ є обов'язковою",

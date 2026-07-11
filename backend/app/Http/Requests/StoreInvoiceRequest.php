@@ -20,7 +20,7 @@ final class StoreInvoiceRequest extends FormRequest
         return [
             'number' => ['required', 'string', 'max:255', Rule::unique('invoices', 'number')],
             'supplier_name' => ['required', 'string', 'max:255'],
-            'supplier_tax_id' => ['required', 'string', 'max:50'],
+            'supplier_tax_id' => ['required', 'string', 'regex:/^\d+$/', 'min:8', 'max:12'],
             'net_amount' => ['required', 'numeric', 'min:0.01'],
             'vat_amount' => ['required', 'numeric', 'min:0'],
             'currency' => ['sometimes', Rule::enum(InvoiceCurrency::class)],
