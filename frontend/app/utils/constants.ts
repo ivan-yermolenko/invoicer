@@ -9,3 +9,5 @@ export const INVOICE_STATUS_LABELS = {
   approved: 'Затверджено',
   rejected: 'Відхилено'
 } as const
+
+export const INVOICE_CURRENCIES = ['UAH', 'USD', 'EUR'] as const
