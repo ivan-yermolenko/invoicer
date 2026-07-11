@@ -7,6 +7,12 @@ export default defineNuxtConfig({
     compatibilityVersion: 4,
   },
   devtools: { enabled: true },
+  runtimeConfig: {
+    apiLocal: 'http://webserver/api', // Internal Docker URL for SSR
+    public: {
+      apiBase: 'http://localhost:8088/api' // External URL for browser
+    }
+  },
   css: ['~/assets/css/main.css'],
   vite: {
     plugins: [
