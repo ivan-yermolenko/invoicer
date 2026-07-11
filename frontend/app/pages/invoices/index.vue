@@ -12,7 +12,7 @@ const page = computed({
 const query = computed(() => ({ page: page.value }))
 
 const { getInvoices } = useInvoicesApi()
-const { data: response, pending, error } = getInvoices(query, { lazy: true })
+const { data: response, pending, error } = await getInvoices(query)
 
 const invoices = computed(() => response.value?.data || [])
 const meta = computed(() => response.value?.meta)
@@ -34,7 +34,10 @@ const columns = [
         <h1 class="text-2xl font-bold text-slate-900">Інвойси</h1>
         <p class="text-sm text-slate-500 mt-1">Керуйте та відстежуйте інвойси вашої компанії</p>
       </div>
-      <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium shadow-sm transition-colors duration-200 flex items-center gap-2">
+      <button 
+        @click="navigateTo('/invoices/create')"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium shadow-sm transition-colors duration-200 flex items-center gap-2"
+      >
         <IconPlus />
         Новий інвойс
       </button>
