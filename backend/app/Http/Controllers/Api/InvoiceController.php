@@ -13,8 +13,6 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 final class InvoiceController extends Controller
 {
     /**
-     * Display a listing of invoices, sorted by newest first.
-     *
      * @param Request $request
      * @return AnonymousResourceCollection
      */
