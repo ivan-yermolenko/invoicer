@@ -1,5 +1,11 @@
 export const formatCurrency = (amount: number, currency: string) => {
-  return new Intl.NumberFormat('uk-UA', { style: 'currency', currency }).format(amount)
+  const formattedNumber = new Intl.NumberFormat('uk-UA', { 
+    style: 'decimal',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount)
+  
+  return `${formattedNumber} ${currency}`
 }
 
 export const formatDate = (dateString: string) => {

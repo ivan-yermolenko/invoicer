@@ -1,10 +1,21 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 
-const { getInvoices } = useInvoicesApi()
+const route = useRoute()
+const router = useRouter()
 
-const { data: response, pending, error } = await getInvoices()
+const page = computed({
+  get: () => Number(route.query.page) || 1,
+  set: (val) => router.push({ query: { ...route.query, page: val } })
+})
+
+const query = computed(() => ({ page: page.value }))
+
+const { getInvoices } = useInvoicesApi()
+const { data: response, pending, error } = getInvoices(query, { lazy: true })
+
 const invoices = computed(() => response.value?.data || [])
+const meta = computed(() => response.value?.meta)
 
 const columns = [
   { key: 'number', label: 'Номер', alignClass: 'text-left', skeletonClass: 'h-4 w-24' },
@@ -114,6 +125,8 @@ const columns = [
             </template>
           </tbody>
         </table>
+
+        <Pagination v-model="page" :meta="meta" />
       </div>
     </div>
   </div>
