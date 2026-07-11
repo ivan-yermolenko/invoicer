@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Database\Factories;
 
+use App\Enums\InvoiceCurrency;
 use App\Enums\InvoiceStatus;
+use App\Models\Invoice;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Invoice>
+ * @extends Factory<Invoice>
  */
 final class InvoiceFactory extends Factory
 {
@@ -32,7 +34,7 @@ final class InvoiceFactory extends Factory
             'net_amount' => $netAmount,
             'vat_amount' => $vatAmount,
             'gross_amount' => $grossAmount,
-            'currency' => 'UAH',
+            'currency' => $this->faker->randomElement(InvoiceCurrency::cases())->value,
             'status' => $this->faker->randomElement(InvoiceStatus::cases())->value,
             'issue_date' => $issueDate->format('Y-m-d'),
             'due_date' => $dueDate->format('Y-m-d'),

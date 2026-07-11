@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\InvoiceCurrency;
 use App\Enums\InvoiceStatus;
 use Database\Factories\InvoiceFactory;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,8 +21,8 @@ use Illuminate\Support\Carbon;
  * @property string $net_amount
  * @property string $vat_amount
  * @property string $gross_amount
- * @property string $currency
- * @property \App\Enums\InvoiceStatus $status
+ * @property InvoiceCurrency $currency
+ * @property InvoiceStatus $status
  * @property Carbon $issue_date
  * @property Carbon $due_date
  * @property Carbon|null $created_at
@@ -57,7 +58,15 @@ final class Invoice extends Model
         'vat_amount' => 'decimal:2',
         'gross_amount' => 'decimal:2',
         'status' => InvoiceStatus::class,
+        'currency' => InvoiceCurrency::class,
         'issue_date' => 'date',
         'due_date' => 'date',
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (Invoice $invoice) {
+            $invoice->gross_amount = (float) $invoice->net_amount + (float) $invoice->vat_amount;
+        });
+    }
 }
