@@ -1,0 +1,73 @@
+services:
+  # Database Service (PostgreSQL)
+  db:
+    image: postgres:16-alpine
+    container_name: tt_monefy_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: tt_monefy
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secretpassword
+    ports:
+      - "54322:5432"
+    volumes:
+      - pgsql_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d tt_monefy"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Laravel Backend Service
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend/Dockerfile
+    container_name: tt_monefy_backend
+    restart: unless-stopped
+    working_dir: /var/www/backend
+    volumes:
+      - ./backend:/var/www/backend
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: tt_monefy
+      DB_USERNAME: postgres
+      DB_PASSWORD: secretpassword
+
+  # Nuxt 4 Frontend Service
+  frontend:
+    image: node:20-alpine
+    container_name: tt_monefy_frontend
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"
+    command: sh -c "if [ -f package.json ]; then npm install && npm run dev -- --host 0.0.0.0; else echo 'Frontend not initialized yet' && sleep 1000; fi"
+    environment:
+      - PORT=3000
+      - HOST=0.0.0.0
+
+  # Nginx Web Server (Reverse Proxy)
+  webserver:
+    image: nginx:alpine
+    container_name: tt_monefy_webserver
+    restart: unless-stopped
+    ports:
+      - "8088:80"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./backend:/var/www/backend
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  pgsql_data:
+    driver: local
