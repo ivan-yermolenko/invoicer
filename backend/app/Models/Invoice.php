@@ -1,0 +1,59 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Models;
+
+use App\Enums\InvoiceStatus;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+/**
+ * @property string $id
+ * @property string $number
+ * @property string $supplier_name
+ * @property string $supplier_tax_id
+ * @property string $net_amount
+ * @property string $vat_amount
+ * @property string $gross_amount
+ * @property string $currency
+ * @property \App\Enums\InvoiceStatus $status
+ * @property \Illuminate\Support\Carbon $issue_date
+ * @property \Illuminate\Support\Carbon $due_date
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder|Invoice newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Invoice newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Invoice query()
+ * @method static Invoice create(array $attributes = [])
+ * @method static Invoice updateOrCreate(array $attributes, array $values = [])
+ */
+final class Invoice extends Model
+{
+    /** @use HasFactory<\Database\Factories\InvoiceFactory> */
+    use HasFactory, HasUuids;
+
+    protected $fillable = [
+        'number',
+        'supplier_name',
+        'supplier_tax_id',
+        'net_amount',
+        'vat_amount',
+        'gross_amount',
+        'currency',
+        'status',
+        'issue_date',
+        'due_date',
+    ];
+
+    protected $casts = [
+        'net_amount' => 'decimal:2',
+        'vat_amount' => 'decimal:2',
+        'gross_amount' => 'decimal:2',
+        'status' => InvoiceStatus::class,
+        'issue_date' => 'date',
+        'due_date' => 'date',
+    ];
+}
