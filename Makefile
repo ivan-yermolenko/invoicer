@@ -7,6 +7,8 @@ setup:
 	sleep 5
 	@echo "Installing backend dependencies..."
 	docker compose exec backend composer install
+	@echo "Fixing storage permissions..."
+	docker compose exec backend chmod -R 777 storage bootstrap/cache
 	@echo "Configuring environment files..."
 	docker compose exec backend cp -n .env.example .env || true
 	docker compose exec backend php artisan key:generate
