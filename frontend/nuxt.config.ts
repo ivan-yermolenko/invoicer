@@ -7,9 +7,6 @@ export default defineNuxtConfig({
     compatibilityVersion: 4
   },
   devtools: { enabled: true },
-  typescript: {
-    typeCheck: true
-  },
   routeRules: {
     '/': { redirect: '/invoices' }
   },
