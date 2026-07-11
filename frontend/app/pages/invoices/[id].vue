@@ -12,6 +12,11 @@ const isUpdating = ref(false);
 const handleStatusChange = async (newStatus: 'approved' | 'rejected') => {
   if (!invoice.value) return;
 
+  const actionText = newStatus === 'approved' ? 'ЗАТВЕРДИТИ' : 'ВІДХИЛИТИ';
+  if (!confirm(`Ви впевнені, що хочете ${actionText} цей інвойс?\nЦю дію неможливо скасувати, і форма буде заблокована.`)) {
+    return;
+  }
+
   isUpdating.value = true;
   try {
     await updateInvoice(invoice.value.id, {
