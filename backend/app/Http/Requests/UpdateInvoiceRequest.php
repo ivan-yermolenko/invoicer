@@ -19,10 +19,11 @@ final class UpdateInvoiceRequest extends FormRequest
 
     public function rules(): array
     {
-        $invoiceId = $this->route('invoice')?->id;
+        $invoice = $this->route('invoice');
+        $issueDateToCheck = $this->input('issue_date') ?? $invoice?->issue_date?->toDateString();
 
         return [
-            'number' => ['sometimes', 'required', 'string', 'max:255', Rule::unique('invoices', 'number')->ignore($invoiceId)],
+            'number' => ['sometimes', 'required', 'string', 'max:255', Rule::unique('invoices', 'number')->ignore($invoice?->id)],
             'supplier_name' => ['sometimes', 'required', 'string', 'max:255'],
             'supplier_tax_id' => ['sometimes', 'required', 'string', 'max:50'],
             'net_amount' => ['sometimes', 'required', 'numeric', 'min:0.01'],
@@ -30,7 +31,7 @@ final class UpdateInvoiceRequest extends FormRequest
             'currency' => ['sometimes', Rule::enum(InvoiceCurrency::class)],
             'status' => ['sometimes', Rule::enum(InvoiceStatus::class)],
             'issue_date' => ['sometimes', 'required', 'date'],
-            'due_date' => ['sometimes', 'required', 'date', 'after_or_equal:issue_date'],
+            'due_date' => ['sometimes', 'required', 'date', 'after_or_equal:' . $issueDateToCheck],
         ];
     }
 }

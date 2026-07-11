@@ -13,7 +13,11 @@ const handleStatusChange = async (newStatus: 'approved' | 'rejected') => {
   if (!invoice.value) return;
 
   const actionText = newStatus === 'approved' ? 'ЗАТВЕРДИТИ' : 'ВІДХИЛИТИ';
-  if (!confirm(`Ви впевнені, що хочете ${actionText} цей інвойс?\nЦю дію неможливо скасувати, і форма буде заблокована.`)) {
+  if (
+    !confirm(
+      `Ви впевнені, що хочете ${actionText} цей інвойс?\nЦю дію неможливо скасувати, і форма буде заблокована.`
+    )
+  ) {
     return;
   }
 
@@ -118,6 +122,9 @@ const handleUpdate = async (payload: any) => {
         <div>
           <h1 class="text-3xl font-bold text-slate-900 mb-1">{{ invoice.number }}</h1>
           <p class="text-slate-500">Редагування інвойсу</p>
+          <p v-if="invoice.updated_at" class="text-xs text-slate-400 mt-2">
+            Останнє оновлення: {{ formatDate(invoice.updated_at) }}
+          </p>
         </div>
         <span
           class="px-3 py-1.5 text-sm font-medium rounded-full border"
