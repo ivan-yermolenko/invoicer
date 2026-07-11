@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\InvoiceStatus;
+use Database\Factories\InvoiceFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 /**
  * @property string $id
@@ -19,20 +22,21 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $gross_amount
  * @property string $currency
  * @property \App\Enums\InvoiceStatus $status
- * @property \Illuminate\Support\Carbon $issue_date
- * @property \Illuminate\Support\Carbon $due_date
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property Carbon $issue_date
+ * @property Carbon $due_date
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  *
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Invoice query()
+ * @method static Builder|Invoice newModelQuery()
+ * @method static Builder|Invoice newQuery()
+ * @method static Builder|Invoice query()
  * @method static Invoice create(array $attributes = [])
  * @method static Invoice updateOrCreate(array $attributes, array $values = [])
+ * @method static Builder|Invoice latest($column = 'created_at')
  */
 final class Invoice extends Model
 {
-    /** @use HasFactory<\Database\Factories\InvoiceFactory> */
+    /** @use HasFactory<InvoiceFactory> */
     use HasFactory, HasUuids;
 
     protected $fillable = [
