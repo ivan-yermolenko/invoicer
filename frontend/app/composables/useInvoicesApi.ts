@@ -42,6 +42,17 @@ export const useInvoicesApi = () => {
       return useApiFetch<InvoiceDetailResponse>(`/invoices/${id}`, opts)
     },
 
+    createInvoice: (payload: any) => {
+      const config = useRuntimeConfig()
+      const baseURL = import.meta.server ? config.apiLocal : config.public.apiBase
+      
+      return $fetch<InvoiceDetailResponse>('/invoices', {
+        baseURL,
+        method: 'POST',
+        body: payload
+      })
+    },
+
     updateInvoice: (id: string, payload: Partial<Invoice>) => {
       const config = useRuntimeConfig()
       const baseURL = import.meta.server ? config.apiLocal : config.public.apiBase
